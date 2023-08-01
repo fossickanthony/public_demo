@@ -38,17 +38,18 @@ def translate_text(text, output_language):
     import re
     if output_language == 'English':
         return text
-    original_text = text
 
+    truncated = False
+    if len(text) > 10000:
+        text = text[:10000]
+        truncated = True
     words = re.findall(r'\b\w+\b', text)
-    words = words[:500]
-    text = ' '.join(words)
-    
-    # Ensure that text length does not exceed 12000
-    if len(text) > 5000:
-        text = text[:5000]
+    if len(words) > 500:
+        words = words[:500]
+        text = ' '.join(words)
+        truncated = True
 
-    if len(text) < len(original_text):
+    if truncated:
         st.write("Truncated text for demo...")
         
     input_language = "English"
