@@ -41,12 +41,12 @@ def translate_text(text, output_language):
     original_text = text
 
     words = re.findall(r'\b\w+\b', text)
-    words = words[:1500]
+    words = words[:500]
     text = ' '.join(words)
     
     # Ensure that text length does not exceed 12000
-    if len(text) > 12000:
-        text = text[:12000]
+    if len(text) > 5000:
+        text = text[:5000]
 
     if len(text) < len(original_text):
         st.write("Truncated text for demo...")
