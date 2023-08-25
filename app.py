@@ -146,43 +146,36 @@ def show_translator(local_dev=False):
         st.session_state.translated_text = translate_text(original_text, target_language, local_dev)
         st.experimental_rerun()
 
-def send_email(from_email, to_email, subject, body, file_contents, file_name):
+def send_email(target_email, subject, body, attachments):
     import smtplib
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
     from email.mime.application import MIMEApplication
+    import os
+    from_email = 'fossickorders@gmail.com'
+    password = os.environ.get("FOSSICK_EMAIL_PASS")
+
     # Create a multipart message
     msg = MIMEMultipart()
     msg['From'] = from_email
-    msg['To'] = to_email
+    msg['To'] = target_email
     msg['Subject'] = subject
 
     # Attach the body text
     msg.attach(MIMEText(body, 'plain'))
 
-    # Attach the file
-    attachment = MIMEApplication(file_contents, Name=file_name)
-    msg.attach(attachment)
+    # Attach the files
+    for attachment_path in attachments:
+        with open(attachment_path, 'rb') as file:
+            file_name = os.path.basename(attachment_path)
+            attachment = MIMEApplication(file.read(), Name=file_name)
+            msg.attach(attachment)
 
     # Connect and send the email
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        # Login Credentials for sending the email
-        # Use an application-specific password or OAuth2 for better security
-        server.login(from_email, 'your-application-specific-password')
+        server.login(from_email, password)
         server.send_message(msg)
-
-    print(f"Email sent to {to_email}")
-
-def create_mailto_url(to, subject, body):
-    import urllib.parse
-    # Create a dictionary of the mailto parameters
-    mailto_params = {'subject': subject, 'body': body}
-    # URL encode the parameters
-    mailto_params_encoded = urllib.parse.urlencode(mailto_params)
-    # Create the full mailto URL
-    mailto_url = f'mailto:{to}?{mailto_params_encoded}'
-    return mailto_url
 
 def validate_email(email):
     import re
@@ -217,7 +210,8 @@ For a professional translation, please give us your email address and choose the
         if not validate_email(email):
             st.error('Please provide a valid email address.')
         else:
-            pass
+            send_email('anthony@fossick.ai', f'Fossick Order for {email}', f'Email:{email}\nLevel:{translation_level}\nFilename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
+            st.balloons()
 
 def main():
     """
