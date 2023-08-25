@@ -199,10 +199,10 @@ For a professional translation, please give us your email address and choose the
     email = st.text_input('Email address:')
     word_count = st.session_state.word_count
     translation_level = st.radio('What translation level do you need?',
-        (f'Full translation single pass:       {word_count} words x $0.05/word = ${round(word_count*0.05, 2):0.2f}',
-         f'Full translation multipass:         {word_count} words x $0.08/word = ${round(word_count*0.08, 2):0.2f}',
-         f'Full translation with Human review: {word_count} words x $0.15/word = ${round(word_count*0.15, 2):0.2f}',
-         f'Legal translation review:*          {word_count} words x $0.50/word = ${round(word_count*0.50, 2):0.2f}'))
+        (f'Full translation single pass:       {word_count} words x \\$0.05/word = \\${round(word_count*0.05, 2):0.2f}',
+         f'Full translation multipass:         {word_count} words x \\$0.08/word = \\${round(word_count*0.08, 2):0.2f}',
+         f'Full translation with Human review: {word_count} words x \\$0.15/word = \\${round(word_count*0.15, 2):0.2f}',
+         f'Legal translation review:*          {word_count} words x \\$0.50/word = \\${round(word_count*0.50, 2):0.2f}'))
     time_to_review = 3 if st.session_state.target_language in top_9_languages else 5
     st.markdown(f'Current human review for a {word_count} word document in {st.session_state.target_language} is {time_to_review} business days.')
     st.markdown(f'*Legal translation review: have your translated document read through by a lawyer fluent in your target language to improve linguistic consistency. Linguistic review only. Legal advice is never provided by or through Fossick. Legal review will take up to an additional 5 business days. For details, please refer to: [Terms of Service - Non-practice](https://www.fossick.ai/terms/#non-practice-href)')
