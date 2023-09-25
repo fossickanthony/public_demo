@@ -3,6 +3,9 @@ from docx import Document
 from PyPDF2 import PdfReader
 import openai
 import io
+import stripe
+
+stripe.api_key = 'sk_test_51Na0TDFXbHqY0SmVllzcYxHIHAhiBGhe7dhFadNZQF7LBjLKBNOHNP1EVDWzwdoEhvMGGQvKJnCaHTS0e91eBH6I00dJKlHS33'
 
 top_9_languages = ['Arabic', 'Chinese', 'English', 'French', 'German', 'Italian', 'Japanese','Portuguese', 'Russian', 'Spanish',]
 top_25_languages = top_9_languages + ['Bengali', 'Hindi', 'Korean', 'Vietnamese', 'Turkish', 'Polish', 'Thai', 'Dutch', 'Indonesian', 'Hungarian', 'Czech', 'Greek', 'Bulgarian', 'Swedish', 'Norwegian', 'Finnish']
@@ -146,6 +149,26 @@ def show_translator(local_dev=False):
         st.session_state.translated_text = translate_text(original_text, target_language, local_dev)
         st.experimental_rerun()
 
+def create_checkout_session(price, quantity):
+    try:
+        YOUR_DOMAIN = 'http://localhost:8502'
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': price,
+                    'quantity': quantity,
+                },
+            ],
+            mode='payment',
+            success_url=YOUR_DOMAIN + '?success=true',
+            cancel_url=YOUR_DOMAIN + '?cancel=true',
+            automatic_tax={'enabled': True},
+        )
+        return checkout_session.url
+    except Exception as e:
+        return str(e)
+
 def send_email(target_email, subject, body, attachments):
     import smtplib
     from email.mime.multipart import MIMEMultipart
@@ -186,6 +209,30 @@ def validate_email(email):
 
 def show_translation():
     st.download_button('Download quick translated sample', io.BytesIO(st.session_state.translated_text.encode()), append_to_filename(st.session_state.file_name, st.session_state.target_language))
+    word_count = st.session_state.word_count
+    sin_url = create_checkout_session('price_1NpSAFFXbHqY0SmVizymhfzu', word_count)
+    mul_url = create_checkout_session('price_1NpSAkFXbHqY0SmV1NPuYGjA', word_count)
+    hum_url = create_checkout_session('price_1NpSBMFXbHqY0SmVaVMYdIqG', word_count)
+    leg_url = create_checkout_session('price_1NpSBlFXbHqY0SmVhIZjAEcT', word_count)
+    st.markdown(f'''# Professional Translation
+Please choose your translation level:''')
+    st.markdown(f'''| Level    | [Full translation single pass]({sin_url}) | [Full translation multipass]({mul_url}) | [Full translation with Human review]({hum_url}) | [Legal translation review]({leg_url})* |
+| -------- | ------- | ------- | ------- | ------- |
+| Word count  | {word_count} words    | {word_count} words    | {word_count} words    | {word_count} words    | 
+| Price per word | x \\$0.05/word     | x \\$0.08/word     | x \\$0.15/word     | x \\$0.50/word     |
+| Total    | [\\${round(word_count*0.05, 2):0.2f}]({sin_url})    | [\\${round(word_count*0.08, 2):0.2f}]({mul_url})    | [\\${round(word_count*0.15, 2):0.2f}]({hum_url})    | [\\${round(word_count*0.50, 2):0.2f}]({leg_url})*    |''')
+
+    time_to_review = 3 if st.session_state.target_language in top_9_languages else 5
+    st.markdown(f'Current human review for a {word_count} word document in {st.session_state.target_language} is {time_to_review} business days.')
+    st.markdown(f'*Legal translation review: have your translated document read through by a lawyer fluent in your target language to improve linguistic consistency. Linguistic review only. Legal advice is never provided by or through Fossick. Legal review will take up to an additional 5 business days. For details, please refer to: [Terms of Service - Non-practice](https://www.fossick.ai/terms/#non-practice-href)')
+
+def show_translation_old():
+    '''* [Full translation single pass]({sin_url}):       {word_count} words x \\$0.05/word = \\${round(word_count*0.05, 2):0.2f}
+    * [Full translation multipass]({mul_url}):         {word_count} words x \\$0.08/word = \\${round(word_count*0.08, 2):0.2f}
+    * [Full translation with Human review]({hum_url}): {word_count} words x \\$0.15/word = \\${round(word_count*0.15, 2):0.2f}
+    * [Legal translation review]({leg_url}):*          {word_count} words x \\$0.50/word = \\${round(word_count*0.50, 2):0.2f}
+    '''
+    st.download_button('Download quick translated sample', io.BytesIO(st.session_state.translated_text.encode()), append_to_filename(st.session_state.file_name, st.session_state.target_language))
     st.markdown('''# Professional Translation
 For a professional translation, please give us your email address and choose the services you would like to receive.
 ''')
@@ -199,13 +246,9 @@ For a professional translation, please give us your email address and choose the
     time_to_review = 3 if st.session_state.target_language in top_9_languages else 5
     st.markdown(f'Current human review for a {word_count} word document in {st.session_state.target_language} is {time_to_review} business days.')
     st.markdown(f'*Legal translation review: have your translated document read through by a lawyer fluent in your target language to improve linguistic consistency. Linguistic review only. Legal advice is never provided by or through Fossick. Legal review will take up to an additional 5 business days. For details, please refer to: [Terms of Service - Non-practice](https://www.fossick.ai/terms/#non-practice-href)')
-    # if st.button('Order translation'):
-    # send email to Ben
-    # to = "anthony@fossick.ai"
-    # subject = "Request Fossick Quote"
-    # body = f"Hi Fossick,\n\nI have a {word_count} word document named {st.session_state.file_name} that I want to translate into {st.session_state.target_language} using {translation_level}."
-    # mailto_url = create_mailto_url(to, subject, body)
-    # st.markdown(f'<a href="{mailto_url}" target="_blank">Click here to request quote</a>', unsafe_allow_html=True)
+    checkout_url = create_checkout_session('price_1NpSBlFXbHqY0SmVhIZjAEcT', word_count)
+    print(checkout_url)
+    st.markdown(f'[Checkout]({checkout_url})')
     if st.button('Request Full Translation'):
         if not validate_email(email):
             st.error('Please provide a valid email address.')
@@ -225,6 +268,12 @@ def main():
     print(dev_env)
 
     # query string param for language
+    params = st.experimental_get_query_params()
+    if 'lang' in params:
+        # do something with language
+        pass
+    if 'success' in params:
+        pass
 
     st.session_state.agreed_to_terms = st.session_state.get('agreed_to_terms', dev_env)
     st.session_state.translated_text = st.session_state.get('translated_text', None)
