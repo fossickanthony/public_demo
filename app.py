@@ -5,8 +5,6 @@ import openai
 import io
 import stripe
 
-stripe.api_key = 'pk_live_51Na0TDFXbHqY0SmVEsosyhZLkeZFG0MFMhkFZw4SyRpbdCjZIfM6dY32hvZPGFPC0dX0NTBqJOiEqRz7a2V8WlDU001bAbLzCQ'
-
 top_9_languages = ['Arabic', 'Chinese', 'English', 'French', 'German', 'Italian', 'Japanese','Portuguese', 'Russian', 'Spanish',]
 top_25_languages = top_9_languages + ['Bengali', 'Hindi', 'Korean', 'Vietnamese', 'Turkish', 'Polish', 'Thai', 'Dutch', 'Indonesian', 'Hungarian', 'Czech', 'Greek', 'Bulgarian', 'Swedish', 'Norwegian', 'Finnish']
 all_languages = ['Afrikaans', 'Arabic', 'Armenian', 'Azerbaijani', 'Belarusian', 'Bosnian', 'Bulgarian', 'Catalan', 'Chinese', 'Croatian', 'Czech', 'Danish', 'Dutch', 'English', 'Estonian', 'Finnish', 'French', 'Galician', 'German', 'Greek', 'Hebrew', 'Hindi', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kannada', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Marathi', 'Maori', 'Nepali', 'Norwegian', 'Persian', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Slovak', 'Slovenian', 'Spanish', 'Swahili', 'Swedish', 'Tagalog', 'Tamil', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese', 'Welsh',]
@@ -265,7 +263,9 @@ def main():
 
     import os
     dev_env = False # os.getenv("LOCAL_FOSSICK_DEV", "False") == "True"
-    print(dev_env)
+    # print(dev_env)
+    stripe.api_key = os.getenv("STRIPE_API_KEY", 'sk_test_51Na0TDFXbHqY0SmVllzcYxHIHAhiBGhe7dhFadNZQF7LBjLKBNOHNP1EVDWzwdoEhvMGGQvKJnCaHTS0e91eBH6I00dJKlHS33')
+    
 
     # query string param for language
     params = st.experimental_get_query_params()
