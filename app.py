@@ -5,7 +5,7 @@ import openai
 import io
 import stripe
 
-stripe.api_key = 'sk_test_51Na0TDFXbHqY0SmVllzcYxHIHAhiBGhe7dhFadNZQF7LBjLKBNOHNP1EVDWzwdoEhvMGGQvKJnCaHTS0e91eBH6I00dJKlHS33'
+stripe.api_key = 'pk_live_51Na0TDFXbHqY0SmVEsosyhZLkeZFG0MFMhkFZw4SyRpbdCjZIfM6dY32hvZPGFPC0dX0NTBqJOiEqRz7a2V8WlDU001bAbLzCQ'
 
 top_9_languages = ['Arabic', 'Chinese', 'English', 'French', 'German', 'Italian', 'Japanese','Portuguese', 'Russian', 'Spanish',]
 top_25_languages = top_9_languages + ['Bengali', 'Hindi', 'Korean', 'Vietnamese', 'Turkish', 'Polish', 'Thai', 'Dutch', 'Indonesian', 'Hungarian', 'Czech', 'Greek', 'Bulgarian', 'Swedish', 'Norwegian', 'Finnish']
