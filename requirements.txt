@@ -2,3 +2,4 @@ openai
 python-docx
 PyPDF2
 BeautifulSoup4
+stripe
