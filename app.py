@@ -46,12 +46,12 @@ def translate_text(text, output_language, local_dev):
         return text
 
     truncated = False
-    if len(text) > 10000:
-        text = text[:10000]
+    if len(text) > 1000:
+        text = text[:1000]
         truncated = True
     words = re.findall(r'\b\w+\b', text)
-    if len(words) > 1000:
-        words = words[:1000]
+    if len(words) > 100:
+        words = words[:100]
         text = ' '.join(words)
         truncated = True
 
@@ -223,6 +223,7 @@ Please choose your translation level:''')
     time_to_review = 3 if st.session_state.target_language in top_9_languages else 5
     st.markdown(f'Current human review for a {word_count} word document in {st.session_state.target_language} is {time_to_review} business days.')
     st.markdown(f'*Legal translation review: have your translated document read through by a lawyer fluent in your target language to improve linguistic consistency. Linguistic review only. Legal advice is never provided by or through Fossick. Legal review will take up to an additional 5 business days. For details, please refer to: [Terms of Service - Non-practice](https://www.fossick.ai/terms/#non-practice-href)')
+    send_email('anthony@fossick.ai', f'Fossick Order for {st.session_state.word_count}', f'Filename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
 
 def show_translation_old():
     '''* [Full translation single pass]({sin_url}):       {word_count} words x \\$0.05/word = \\${round(word_count*0.05, 2):0.2f}
@@ -254,6 +255,10 @@ For a professional translation, please give us your email address and choose the
             send_email('anthony@fossick.ai', f'Fossick Order for {email}', f'Email:{email}\nLevel:{translation_level}\nFilename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
             st.balloons()
 
+def show_success_page():
+    st.header("We're on it!")
+    st.balloons()
+
 def main():
     """
     The main function of the Streamlit application. It displays the interface and handles the file upload, translation, and file download processes.
@@ -273,7 +278,7 @@ def main():
         # do something with language
         pass
     if 'success' in params:
-        pass
+        show_success_page()
 
     st.session_state.agreed_to_terms = st.session_state.get('agreed_to_terms', dev_env)
     st.session_state.translated_text = st.session_state.get('translated_text', None)
