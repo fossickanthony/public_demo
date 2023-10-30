@@ -54,7 +54,7 @@ def translate_text(text, output_language, local_dev):
         truncated = True
 
     if truncated:
-        st.write("Truncated text for demo...")
+        print("Truncated text for demo...")
     if output_language == 'English':
         return text
         
@@ -137,15 +137,14 @@ def show_translator(local_dev=False):
         if not validate_email(business_email):
             st.error('Please provide a valid email address.')
         else:
-            original_text = extract_text_from_file(file)
-            st.session_state.file_name = file.name
-            
-            st.write('translating text')
-            st.session_state.email = business_email
-            st.session_state.target_language = target_language
-            st.session_state.original_text = original_text
-            st.session_state.translated_text = translate_text(original_text, target_language, local_dev)
-            st.experimental_rerun()
+            with st.spinner('Translating text...'):
+                original_text = extract_text_from_file(file)
+                st.session_state.file_name = file.name
+                st.session_state.email = business_email
+                st.session_state.target_language = target_language
+                st.session_state.original_text = original_text
+                st.session_state.translated_text = translate_text(original_text, target_language, local_dev)
+                st.experimental_rerun()
     elif button_pressed:
         st.error("Please agree to the terms before proceeding.")
 
