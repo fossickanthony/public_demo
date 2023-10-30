@@ -42,8 +42,6 @@ def translate_text(text, output_language, local_dev):
     import re
     words = re.findall(r'\b\w+\b', text)
     st.session_state.word_count = len(words)
-    if output_language == 'English':
-        return text
 
     truncated = False
     if len(text) > 1000:
@@ -57,6 +55,8 @@ def translate_text(text, output_language, local_dev):
 
     if truncated:
         st.write("Truncated text for demo...")
+    if output_language == 'English':
+        return text
         
     # print(f"About to translate: {text}")
 
@@ -111,15 +111,16 @@ def get_txt_filename(url):
         # Return index.txt if there is no extension
         return "index.txt"
 
+def validate_email(email):
+    import re
+    # Define a regular expression pattern for a valid email
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    # Match the pattern against the email
+    return email and re.match(pattern, email) is not None
+
 def show_translator(local_dev=False):
-    st.header('STEP 1: upload a document or submit a URL.')
-    col1, col2= st.columns(2)
-    with col1:
-        st.subheader('Upload a document')
-        file = st.file_uploader('Upload a document (.txt, .docx)', type=['txt', 'docx'])
-    with col2:
-        st.subheader('Link to a document')
-        doc_url = st.text_input('URL of .txt or .docx')
+    st.header('STEP 1: upload a document.')
+    file = st.file_uploader('Upload a document (.txt, .docx)', type=['txt', 'docx'])
 
     st.header('STEP 2: Select a language to translate to.')
     if st.checkbox('extended languages'):
@@ -129,23 +130,24 @@ def show_translator(local_dev=False):
         languages = top_9_languages
         target_language = st.selectbox('Select target language', languages, index=3 if local_dev else 0)
 
-    if st.button("Quick Machine Translation") and (file or doc_url):
-        if file:
+    business_email = st.text_input('Business email address')
+    agreed_to_terms = st.checkbox("To continue, please agree to our [Terms of Service](https://www.fossick.ai/terms).")
+    button_pressed = st.button("Quick Machine Translation")
+    if agreed_to_terms and button_pressed and file:
+        if not validate_email(business_email):
+            st.error('Please provide a valid email address.')
+        else:
             original_text = extract_text_from_file(file)
             st.session_state.file_name = file.name
-        else:
-            original_text = download_html(doc_url)
-            # print(dir(original_text))
-            # print(type(original_text))
-            original_text = clean_strings(original_text.splitlines())
-            original_text = '\n'.join(original_text)
-            st.session_state.file_name = get_txt_filename(doc_url)
-        
-        st.write('translating text')
-        st.session_state.target_language = target_language
-        st.session_state.original_text = original_text
-        st.session_state.translated_text = translate_text(original_text, target_language, local_dev)
-        st.experimental_rerun()
+            
+            st.write('translating text')
+            st.session_state.email = business_email
+            st.session_state.target_language = target_language
+            st.session_state.original_text = original_text
+            st.session_state.translated_text = translate_text(original_text, target_language, local_dev)
+            st.experimental_rerun()
+    elif button_pressed:
+        st.error("Please agree to the terms before proceeding.")
 
 def create_checkout_session(price, quantity):
     try:
@@ -198,32 +200,26 @@ def send_email(target_email, subject, body, attachments):
         server.login(from_email, password)
         server.send_message(msg)
 
-def validate_email(email):
-    import re
-    # Define a regular expression pattern for a valid email
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    # Match the pattern against the email
-    return re.match(pattern, email) is not None
-
 def show_translation():
-    st.download_button('Download quick translated sample', io.BytesIO(st.session_state.translated_text.encode()), append_to_filename(st.session_state.file_name, st.session_state.target_language))
+    st.markdown('# Quick sample translation')
+    st.markdown(st.session_state.translated_text)
+    # st.download_button('Download quick translated sample', io.BytesIO(st.session_state.translated_text.encode()), append_to_filename(st.session_state.file_name, st.session_state.target_language))
     word_count = st.session_state.word_count
-    sin_url = create_checkout_session('price_1NpSAFFXbHqY0SmVizymhfzu', word_count)
     mul_url = create_checkout_session('price_1NpSAkFXbHqY0SmV1NPuYGjA', word_count)
     hum_url = create_checkout_session('price_1NpSBMFXbHqY0SmVaVMYdIqG', word_count)
     leg_url = create_checkout_session('price_1NpSBlFXbHqY0SmVhIZjAEcT', word_count)
     st.markdown(f'''# Professional Translation
 Please choose your translation level:''')
-    st.markdown(f'''| Level    | [Full translation single pass]({sin_url}) | [Full translation multipass]({mul_url}) | [Full translation with Human review]({hum_url}) | [Legal translation review]({leg_url})* |
-| -------- | ------- | ------- | ------- | ------- |
-| Word count  | {word_count} words    | {word_count} words    | {word_count} words    | {word_count} words    | 
-| Price per word | x \\$0.05/word     | x \\$0.08/word     | x \\$0.15/word     | x \\$0.50/word     |
-| Total    | [\\${round(word_count*0.05, 2):0.2f}]({sin_url})    | [\\${round(word_count*0.08, 2):0.2f}]({mul_url})    | [\\${round(word_count*0.15, 2):0.2f}]({hum_url})    | [\\${round(word_count*0.50, 2):0.2f}]({leg_url})*    |''')
+    st.markdown(f'''| Level    | [Full translation multipass]({mul_url}) | [Full translation with Human review]({hum_url}) | [Legal translation review]({leg_url})* |
+| -------- | ------- | ------- | ------- |
+| Word count  | {word_count} words    | {word_count} words    | {word_count} words    | 
+| Price per word | x \\$0.08/word     | x \\$0.15/word     | x \\$0.50/word     |
+| Total    | [\\${round(word_count*0.08, 2):0.2f}]({mul_url})    | [\\${round(word_count*0.15, 2):0.2f}]({hum_url})    | [\\${round(word_count*0.50, 2):0.2f}]({leg_url})*    |''')
 
     time_to_review = 3 if st.session_state.target_language in top_9_languages else 5
     st.markdown(f'Current human review for a {word_count} word document in {st.session_state.target_language} is {time_to_review} business days.')
     st.markdown(f'*Legal translation review: have your translated document read through by a lawyer fluent in your target language to improve linguistic consistency. Linguistic review only. Legal advice is never provided by or through Fossick. Legal review will take up to an additional 5 business days. For details, please refer to: [Terms of Service - Non-practice](https://www.fossick.ai/terms/#non-practice-href)')
-    send_email('anthony@fossick.ai', f'Fossick Order for {st.session_state.word_count}', f'Filename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
+    send_email('anthony@fossick.ai', f'Fossick Order for {st.session_state.word_count}', f'Email:{st.session_state.email}\nFilename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
 
 def show_translation_old():
     '''* [Full translation single pass]({sin_url}):       {word_count} words x \\$0.05/word = \\${round(word_count*0.05, 2):0.2f}
@@ -280,12 +276,9 @@ def main():
     if 'success' in params:
         show_success_page()
 
-    st.session_state.agreed_to_terms = st.session_state.get('agreed_to_terms', dev_env)
     st.session_state.translated_text = st.session_state.get('translated_text', None)
 
-    if not st.session_state.agreed_to_terms:
-        show_terms()    
-    elif not st.session_state.translated_text:
+    if not st.session_state.translated_text:
         show_translator(dev_env)
     else:
         show_translation()
