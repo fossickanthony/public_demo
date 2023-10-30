@@ -201,9 +201,9 @@ def send_email(target_email, subject, body, attachments):
         server.send_message(msg)
 
 def show_translation():
-    st.markdown('# Quick sample translation')
-    st.markdown(st.session_state.translated_text)
-    # st.download_button('Download quick translated sample', io.BytesIO(st.session_state.translated_text.encode()), append_to_filename(st.session_state.file_name, st.session_state.target_language))
+    # st.markdown('# Quick sample translation')
+    # st.markdown(st.session_state.translated_text)
+    st.download_button('Download quick translated sample', io.BytesIO(st.session_state.translated_text.encode()), append_to_filename(st.session_state.file_name, st.session_state.target_language))
     word_count = st.session_state.word_count
     mul_url = create_checkout_session('price_1NpSAkFXbHqY0SmV1NPuYGjA', word_count)
     hum_url = create_checkout_session('price_1NpSBMFXbHqY0SmVaVMYdIqG', word_count)
@@ -248,7 +248,7 @@ For a professional translation, please give us your email address and choose the
         if not validate_email(email):
             st.error('Please provide a valid email address.')
         else:
-            send_email('anthony@fossick.ai', f'Fossick Order for {email}', f'Email:{email}\nLevel:{translation_level}\nFilename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
+            send_email('translate@fossick.ai', f'Fossick Order for {email}', f'Email:{email}\nLevel:{translation_level}\nFilename:{st.session_state.file_name}\nTarget language:{st.session_state.target_language}\nOriginal text:{st.session_state.original_text}', [])
             st.balloons()
 
 def show_success_page():
