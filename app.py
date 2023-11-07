@@ -150,7 +150,7 @@ def show_translator(local_dev=False):
 
 def create_checkout_session(price, quantity):
     try:
-        YOUR_DOMAIN = 'https://fossick.streamlit.app/'
+        YOUR_DOMAIN = 'https://www.fossick.ai/get-started-thank-you'
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
